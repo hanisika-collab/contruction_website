@@ -2,7 +2,6 @@ import React, { useState, useRef, useCallback } from 'react';
 
 const BeforeAfterSlider = ({ beforeImg, afterImg, title, category, year }) => {
   const [pos, setPos] = useState(50);
-  const [dragging, setDragging] = useState(false);
   const wrapRef = useRef(null);
 
   const calcPos = useCallback((clientX) => {
@@ -32,8 +31,6 @@ const BeforeAfterSlider = ({ beforeImg, afterImg, title, category, year }) => {
         style={{ aspectRatio: '16 / 10' }}
         onMouseMove={(e) => calcPos(e.clientX)}
         onTouchMove={(e) => calcPos(e.touches[0].clientX)}
-        onMouseDown={() => setDragging(true)}
-        onMouseUp={() => setDragging(false)}
       >
         {/* AFTER IMAGE (full width base) */}
         <img

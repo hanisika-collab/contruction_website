@@ -158,8 +158,8 @@ const Footer = () => {
           © {new Date().getFullYear()} AceConstruct. All rights reserved.
         </p>
         <div className="flex gap-6 text-xs text-muted font-ui">
-          <a href="#" className="hover:text-accent transition-colors">Privacy Policy</a>
-          <a href="#" className="hover:text-accent transition-colors">Terms</a>
+          <button onClick={() => {}} className="hover:text-accent transition-colors bg-transparent border-none cursor-pointer text-xs text-muted font-ui p-0">Privacy Policy</button>
+          <button onClick={() => {}} className="hover:text-accent transition-colors bg-transparent border-none cursor-pointer text-xs text-muted font-ui p-0">Terms</button>
         </div>
       </div>
 
