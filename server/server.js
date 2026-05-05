@@ -9,12 +9,15 @@ connectDB();
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '20mb' })); // increased for base64 image uploads
+app.use(express.urlencoded({ limit: '20mb', extended: true }));
 
 const projectRoutes = require('./routes/projectRoutes');
 const chatRoutes = require('./routes/chat');
+const adminRoutes = require('./routes/admin');
 
 app.use('/api', chatRoutes);
+app.use('/api', adminRoutes);          // handles /api/admin/login, /api/packages
 app.use('/api/projects', projectRoutes);
 
 app.get('/', (req, res) => {

@@ -22,14 +22,14 @@ const Footer = () => {
   };
 
   const inputClass = `
-    w-full bg-transparent border-b border-white/10 focus:border-accent outline-none
-    font-body text-sm text-white placeholder-white/30 py-3 transition-colors
+    w-full bg-transparent border-b border-border focus:border-accent outline-none
+    font-body text-sm text-text placeholder-muted py-3 transition-colors duration-200
   `;
 
-  const labelClass = `font-ui text-[10px] tracking-[0.3em] uppercase text-white/30 mb-1`;
+  const labelClass = `block font-ui text-[10px] tracking-[0.3em] uppercase text-muted mb-1`;
 
   return (
-    <footer id="contact" className="bg-[#111] border-t border-white/10">
+    <footer id="contact" className="bg-white border-t border-border">
 
       {/* CONTACT SECTION */}
       <div className="px-6 md:px-12 py-24 max-w-7xl mx-auto">
@@ -42,126 +42,124 @@ const Footer = () => {
               Start Your Project
             </p>
 
-            <h2 className="font-display text-5xl md:text-6xl text-white mb-6 leading-none">
+            <h2 className="font-display text-text mb-6 leading-tight" style={{ fontSize: 'clamp(40px, 5vw, 64px)' }}>
               Ready to <br />
-              <span className="text-accent font-semibold">Build?</span>
+              <span className="text-accent italic">Build?</span>
             </h2>
 
-            <p className="font-body text-white/40 text-sm leading-relaxed max-w-xs mb-10">
-              Every great space begins with a conversation. Share your vision — we’ll build it.
+            <p className="font-body text-muted text-sm leading-relaxed max-w-xs mb-10">
+              Every great space begins with a conversation. Share your vision — we'll build it.
             </p>
 
             {/* CONTACT INFO */}
-            <div className="space-y-5">
+            <div className="space-y-6">
               <div>
                 <span className={labelClass}>Address</span>
-                <p className="text-white/60 text-sm whitespace-pre-line">
-                  No. 14, 3rd Cross, Indiranagar{"\n"}
+                <p className="text-text text-sm leading-relaxed">
+                  No. 14, 3rd Cross, Indiranagar<br />
                   Bengaluru — 560038
                 </p>
               </div>
-
               <div>
                 <span className={labelClass}>Phone</span>
-                <a href="tel:+918800000000" className="text-white/60 text-sm hover:text-accent">
+                <a href="tel:+918800000000" className="text-text text-sm hover:text-accent transition-colors">
                   +91 88000 00000
                 </a>
               </div>
-
               <div>
                 <span className={labelClass}>Email</span>
-                <a href="mailto:hello@aceconstruct.in" className="text-white/60 text-sm hover:text-accent">
+                <a href="mailto:hello@aceconstruct.in" className="text-text text-sm hover:text-accent transition-colors">
                   hello@aceconstruct.in
                 </a>
               </div>
             </div>
           </div>
 
-          {/* RIGHT FORM */}
-          <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-
-            <div>
-              <label className={labelClass}>Full Name *</label>
-              <input name="name" value={form.name} onChange={handleChange} required placeholder="Your name" className={inputClass}/>
-            </div>
-
-            <div className="grid grid-cols-2 gap-6">
-              <div>
-                <label className={labelClass}>Email *</label>
-                <input type="email" name="email" value={form.email} onChange={handleChange} required className={inputClass}/>
+          {/* RIGHT — FORM */}
+          {status === 'success' ? (
+            <div className="flex flex-col items-center justify-center border border-border bg-surface p-12 text-center gap-4">
+              <div className="w-14 h-14 bg-accent/10 flex items-center justify-center rounded-full">
+                <span className="text-accent text-2xl">✓</span>
               </div>
-              <div>
-                <label className={labelClass}>Phone *</label>
-                <input type="tel" name="phone" value={form.phone} onChange={handleChange} required className={inputClass}/>
-              </div>
-            </div>
-
-            <div>
-              <label className={labelClass}>City</label>
-              <select
-                name="city"
-                value={form.city}
-                onChange={handleChange}
-                className={inputClass + " cursor-pointer"}
+              <h3 className="font-display text-text text-2xl">Enquiry Received</h3>
+              <p className="text-muted text-sm">We'll be in touch with you shortly.</p>
+              <button
+                onClick={() => setStatus('idle')}
+                className="mt-2 border border-border px-6 py-2 text-xs uppercase tracking-widest font-ui text-muted hover:border-accent hover:text-accent transition-colors"
               >
-                <option value="" className="bg-[#141414]">Select your city</option>
-                {CITIES.map(c => (
-                  <option key={c} value={c} className="bg-[#141414]">{c}</option>
-                ))}
-              </select>
+                Submit Another
+              </button>
             </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="flex flex-col gap-6">
 
-            <div>
-              <label className={labelClass}>Message</label>
-              <textarea
-                name="message"
-                value={form.message}
-                onChange={handleChange}
-                rows={3}
-                className={inputClass + " resize-none"}
-              />
-            </div>
+              <div>
+                <label className={labelClass}>Full Name *</label>
+                <input name="name" value={form.name} onChange={handleChange} required placeholder="Your name" className={inputClass} />
+              </div>
 
-            {/* BUTTON */}
-            <button
-              type="submit"
-              disabled={status !== 'idle'}
-              className={`
-                font-ui text-xs tracking-widest uppercase py-4 transition-all
-                ${status === 'success'
-                  ? 'bg-transparent border border-accent text-accent'
-                  : 'bg-accent text-black hover:opacity-90'}
-                ${status === 'loading' ? 'opacity-60 cursor-not-allowed' : ''}
-              `}
-            >
-              {status === 'loading' ? 'Sending...'
-                : status === 'success' ? '✓ Enquiry Received'
-                : 'Submit Enquiry'}
-            </button>
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <label className={labelClass}>Email *</label>
+                  <input type="email" name="email" value={form.email} onChange={handleChange} required className={inputClass} />
+                </div>
+                <div>
+                  <label className={labelClass}>Phone *</label>
+                  <input type="tel" name="phone" value={form.phone} onChange={handleChange} required className={inputClass} />
+                </div>
+              </div>
 
-            {status === 'error' && (
-              <p className="text-red-400 text-sm text-center">
-                Something went wrong. Try again.
-              </p>
-            )}
-          </form>
+              <div>
+                <label className={labelClass}>City</label>
+                <select name="city" value={form.city} onChange={handleChange} className={inputClass + ' cursor-pointer'}>
+                  <option value="">Select your city</option>
+                  {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+
+              <div>
+                <label className={labelClass}>Message</label>
+                <textarea name="message" value={form.message} onChange={handleChange} rows={3} className={inputClass + ' resize-none'} />
+              </div>
+
+              <button
+                type="submit"
+                disabled={status !== 'idle'}
+                className={`
+                  font-ui text-xs tracking-widest uppercase py-4 transition-all duration-200
+                  ${status === 'success'
+                    ? 'bg-transparent border border-accent text-accent'
+                    : 'bg-accent text-white hover:bg-accentDark'}
+                  ${status === 'loading' ? 'opacity-60 cursor-not-allowed' : ''}
+                `}
+              >
+                {status === 'loading' ? 'Sending...'
+                  : status === 'success' ? '✓ Enquiry Received'
+                  : 'Submit Enquiry →'}
+              </button>
+
+              {status === 'error' && (
+                <p className="text-red-500 text-sm text-center">
+                  Something went wrong. Please try again.
+                </p>
+              )}
+            </form>
+          )}
 
         </div>
       </div>
 
       {/* BOTTOM BAR */}
-      <div className="px-6 md:px-12 py-6 flex flex-col md:flex-row items-center justify-between gap-4 border-t border-white/10">
-        <h3 className="font-ui text-lg font-bold text-white tracking-wide">
+      <div className="bg-surface border-t border-border px-6 md:px-12 py-5 flex flex-col md:flex-row items-center justify-between gap-4">
+        <h3 className="font-ui text-base font-800 text-text tracking-wide">
           ACE<span className="text-accent">CONSTRUCT</span>
         </h3>
-
-        <p className="text-white/30 text-xs">
-          © {new Date().getFullYear()} AceConstruct
+        <p className="text-muted text-xs">
+          © {new Date().getFullYear()} AceConstruct. All rights reserved.
         </p>
-
-        <div className="flex gap-6 text-xs text-white/30">
-          <a href="#" className="hover:text-accent">Privacy Policy</a>
-          <a href="#" className="hover:text-accent">Terms</a>
+        <div className="flex gap-6 text-xs text-muted font-ui">
+          <a href="#" className="hover:text-accent transition-colors">Privacy Policy</a>
+          <a href="#" className="hover:text-accent transition-colors">Terms</a>
         </div>
       </div>
 

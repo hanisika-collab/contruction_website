@@ -1,11 +1,17 @@
 const express = require('express');
 const router = express.Router();
-const { getProjects, createProject,getFeaturedProjects, 
-    getProjectsByCity } = require('../controllers/projectController');
+const {
+  getProjects,
+  createProject,
+  getFeaturedProjects,
+  getProjectsByCity,
+  updateProject,
+  deleteProject,
+} = require('../controllers/projectController');
 
-// This refers to the "root" of /api/projects
 router.get('/featured', getFeaturedProjects);
 router.get('/city/:cityName', getProjectsByCity);
-router.route('/').get(getProjects).post(createProject); 
+router.route('/').get(getProjects).post(createProject);
+router.route('/:id').put(updateProject).delete(deleteProject);
 
 module.exports = router;
