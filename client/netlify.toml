@@ -1,9 +1,7 @@
-# client/netlify.toml
-
 [build]
   base    = "client"
   command = "npm run build"
-  publish = "build"
+  publish = "client/build"
 
 [[redirects]]
   from   = "/*"
