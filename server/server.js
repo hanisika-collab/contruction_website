@@ -2,10 +2,15 @@ const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const { connectDB } = require('./config/db');
-const Inquiry = require('./models/Inquiry');
+const Inquiry     = require('./models/Inquiry');
+const ChatMessage = require('./models/ChatMessage');
 
 dotenv.config();
-connectDB();
+connectDB().then(async () => {
+  // Auto-create chat_messages table if it doesn't exist
+  await ChatMessage.sync({ alter: true });
+  console.log('chat_messages table ready');
+});
 
 const app = express();
 app.use(cors());

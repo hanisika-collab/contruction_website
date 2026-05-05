@@ -1,3 +1,4 @@
+// models/ChatMessage.js
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/db');
 
@@ -7,6 +8,8 @@ const ChatMessage = sequelize.define('ChatMessage', {
     primaryKey: true,
     autoIncrement: true,
   },
+
+  // Who the user is (from lead capture)
   name: {
     type: DataTypes.STRING,
     allowNull: true,
@@ -15,14 +18,24 @@ const ChatMessage = sequelize.define('ChatMessage', {
     type: DataTypes.STRING,
     allowNull: true,
   },
+
+  // Session key — groups all messages from one chat session
+  session_key: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+
+  // 'user' or 'bot'
+  sender: {
+    type: DataTypes.ENUM('user', 'bot'),
+    allowNull: false,
+  },
+
   message: {
     type: DataTypes.TEXT,
-    allowNull: true,
+    allowNull: false,
   },
-  intent: {
-    type: DataTypes.STRING,
-    allowNull: true,
-  },
+
 }, {
   tableName: 'chat_messages',
   timestamps: true,

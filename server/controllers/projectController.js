@@ -4,7 +4,7 @@ const Project = require('../models/Project');
 // @route   GET /api/projects
 exports.getProjects = async (req, res) => {
   try {
-    const projects = await Project.findAll();
+    const projects = await Project.findAll({ order: [['created_at', 'DESC']] });
     const data = projects.map(formatProject);
     res.status(200).json({ success: true, count: data.length, data });
   } catch (err) {
@@ -18,20 +18,27 @@ exports.createProject = async (req, res) => {
   try {
     const { title, description, city, category, images, pricing, isFeatured, year } = req.body;
 
+    // Validate required fields explicitly so the error message is clear
+    if (!title || !city) {
+      return res.status(400).json({ success: false, message: 'Title and City are required' });
+    }
+
     const project = await Project.create({
       title,
-      description: description || '',
+      description:          description || '',
       city,
-      category: category || 'Residential',
-      image_before: images?.before || '',
-      image_after: images?.after || '',
-      pricing_total_cost: pricing?.totalCost || null,
+      category:             category || 'Residential',
+      image_before:         images?.before || null,
+      image_after:          images?.after  || null,
+      pricing_total_cost:   pricing?.totalCost   || null,
       pricing_package_type: pricing?.packageType || null,
-      is_featured: isFeatured || false,
+      is_featured:          isFeatured || false,
+      year:                 year ? parseInt(year, 10) : null,  // FIX: persist year
     });
 
     res.status(201).json({ success: true, data: formatProject(project) });
   } catch (err) {
+    console.error('createProject error:', err);
     res.status(400).json({ success: false, message: err.message });
   }
 };
@@ -41,24 +48,28 @@ exports.createProject = async (req, res) => {
 exports.updateProject = async (req, res) => {
   try {
     const project = await Project.findByPk(req.params.id);
-    if (!project) return res.status(404).json({ success: false, message: 'Project not found' });
+    if (!project) {
+      return res.status(404).json({ success: false, message: 'Project not found' });
+    }
 
     const { title, description, city, category, images, pricing, isFeatured, year } = req.body;
 
     await project.update({
-      title: title ?? project.title,
-      description: description ?? project.description,
-      city: city ?? project.city,
-      category: category ?? project.category,
-      image_before: images?.before ?? project.image_before,
-      image_after: images?.after ?? project.image_after,
-      pricing_total_cost: pricing?.totalCost ?? project.pricing_total_cost,
+      title:                title       ?? project.title,
+      description:          description ?? project.description,
+      city:                 city        ?? project.city,
+      category:             category    ?? project.category,
+      image_before:         images?.before ?? project.image_before,
+      image_after:          images?.after  ?? project.image_after,
+      pricing_total_cost:   pricing?.totalCost   ?? project.pricing_total_cost,
       pricing_package_type: pricing?.packageType ?? project.pricing_package_type,
-      is_featured: isFeatured ?? project.is_featured,
+      is_featured:          isFeatured ?? project.is_featured,
+      year: year !== undefined ? (year ? parseInt(year, 10) : null) : project.year,
     });
 
     res.status(200).json({ success: true, data: formatProject(project) });
   } catch (err) {
+    console.error('updateProject error:', err);
     res.status(400).json({ success: false, message: err.message });
   }
 };
@@ -68,11 +79,13 @@ exports.updateProject = async (req, res) => {
 exports.deleteProject = async (req, res) => {
   try {
     const project = await Project.findByPk(req.params.id);
-    if (!project) return res.status(404).json({ success: false, message: 'Project not found' });
-
+    if (!project) {
+      return res.status(404).json({ success: false, message: 'Project not found' });
+    }
     await project.destroy();
     res.status(200).json({ success: true, message: 'Project deleted' });
   } catch (err) {
+    console.error('deleteProject error:', err);
     res.status(400).json({ success: false, message: err.message });
   }
 };
@@ -92,30 +105,34 @@ exports.getFeaturedProjects = async (req, res) => {
 // @route   GET /api/projects/city/:cityName
 exports.getProjectsByCity = async (req, res) => {
   try {
-    const projects = await Project.findAll({ where: { city: req.params.cityName } });
+    const projects = await Project.findAll({
+      where: { city: req.params.cityName },
+      order: [['created_at', 'DESC']],
+    });
     res.status(200).json({ success: true, count: projects.length, data: projects.map(formatProject) });
   } catch (err) {
     res.status(400).json({ success: false, message: err.message });
   }
 };
 
-// Helper: reshape flat SQL row → nested shape frontend expects
+// ─── Helper: reshape DB row → nested shape the frontend expects ───────
 function formatProject(p) {
   return {
-    _id: p.id,
-    title: p.title,
+    _id:         p.id,
+    title:       p.title,
     description: p.description,
-    city: p.city,
-    category: p.category,
+    city:        p.city,
+    category:    p.category,
+    year:        p.year,          // FIX: was missing from original formatProject
     images: {
       before: p.image_before,
-      after: p.image_after,
+      after:  p.image_after,
     },
     pricing: {
-      totalCost: p.pricing_total_cost,
+      totalCost:   p.pricing_total_cost,
       packageType: p.pricing_package_type,
     },
     isFeatured: p.is_featured,
-    createdAt: p.created_at,
+    createdAt:  p.created_at,
   };
 }
