@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Link, Navigate } from 'react-router-dom';
+import {HashRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
 
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -20,7 +20,7 @@ const ProtectedRoute = ({ children }) => {
 
 function App() {
   return (
-    <BrowserRouter>
+    <Router>
       <Routes>
 
         {/* ─── ADMIN ROUTES (no Navbar/Footer) ─────────── */}
@@ -77,7 +77,7 @@ function App() {
         />
 
       </Routes>
-    </BrowserRouter>
+    </Router>
   );
 }
 
