@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-/* ─── INITIAL QUICK SUGGESTIONS shown before user types anything ─────────── */
 const INITIAL_SUGGESTIONS = [
   'Tell me about your works',
   'What are your pricing packages?',
@@ -8,16 +7,15 @@ const INITIAL_SUGGESTIONS = [
   'How long does construction take?',
 ];
 
-/* ─── CHATBOT ────────────────────────────────────────────────────────────── */
 const Chatbot = () => {
   const [open,        setOpen]        = useState(false);
-  const [step,        setStep]        = useState('name'); // 'name' | 'phone' | 'chat'
+  const [step,        setStep]        = useState('name');
   const [lead,        setLead]        = useState({ name: '', phone: '' });
   const [input,       setInput]       = useState('');
   const [loading,     setLoading]     = useState(false);
   const [suggestions, setSuggestions] = useState(INITIAL_SUGGESTIONS);
   const [messages,    setMessages]    = useState([
-    { from: 'bot', text: 'Hi! 👋 Welcome to ACE Construct! May I know your name?' },
+    { from: 'bot', text: 'Hi! 👋 Welcome to MakeBuilders! May I know your name?' },
   ]);
 
   const bottomRef = useRef(null);
@@ -41,64 +39,41 @@ const Chatbot = () => {
       body: JSON.stringify({ name, phone, source: 'chatbot' }),
     }).catch(() => {});
 
-  /* ── core send logic ── */
   const send = async (text) => {
     if (!text.trim() || loading) return;
     setInput('');
-    setSuggestions([]); // clear suggestions while waiting
+    setSuggestions([]);
     setMessages(p => [...p, { from: 'user', text }]);
 
-    /* Lead capture */
     if (step === 'name') {
       setLead(p => ({ ...p, name: text }));
       addBotMsg(`Nice to meet you, ${text}! 😊 Could you share your phone number so we can follow up?`);
       setStep('phone');
-      setSuggestions([]); // no suggestions during lead capture
       return;
     }
 
     if (step === 'phone') {
       setLead(prev => { saveLead(prev.name, text); return { ...prev, phone: text }; });
-      addBotMsg('Thanks! 🙏 What would you like to know about ACE Construct?');
+      addBotMsg('Thanks! 🙏 What would you like to know about MakeBuilders?');
       setStep('chat');
       setTimeout(() => setSuggestions(INITIAL_SUGGESTIONS), 400);
       return;
     }
 
-    /* AI reply */
     setLoading(true);
     try {
-      console.log('[ACE Chatbot] 1. Sending to backend:', { message: text, name: lead.name, phone: lead.phone });
-
       const res = await fetch('http://localhost:5000/api/chat', {
-        method:  'POST',
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ message: text, name: lead.name, phone: lead.phone }),
+        body: JSON.stringify({ message: text, name: lead.name, phone: lead.phone }),
       });
-
-      console.log('[ACE Chatbot] 2. HTTP status:', res.status, '| ok:', res.ok);
-
       const data = await res.json();
-      console.log('[ACE Chatbot] 3. Response body:', data);
-
-      if (!res.ok) {
-        console.error('[ACE Chatbot] 4a. Backend error:', res.status, data);
-        throw new Error(data?.error || 'HTTP ' + res.status);
-      }
-
+      if (!res.ok) throw new Error(data?.error || 'HTTP ' + res.status);
       const reply = data.reply || data.message || '';
-      console.log('[ACE Chatbot] 4b. reply:', reply);
-      console.log('[ACE Chatbot] 4c. suggestions:', data.suggestions);
-
-      if (!reply) {
-        console.error('[ACE Chatbot] 5. Empty reply — full response:', data);
-        throw new Error('Empty reply from backend');
-      }
-
+      if (!reply) throw new Error('Empty reply from backend');
       setMessages(p => [...p, { from: 'bot', text: reply }]);
       setSuggestions(Array.isArray(data.suggestions) ? data.suggestions : []);
-    } catch (err) {
-      console.error('[ACE Chatbot] CAUGHT ERROR:', err.name, '|', err.message, err);
+    } catch {
       setMessages(p => [...p, { from: 'bot', text: 'Sorry, something went wrong. Please try again.' }]);
       setSuggestions(INITIAL_SUGGESTIONS);
     } finally {
@@ -111,10 +86,26 @@ const Chatbot = () => {
 
   return (
     <>
-      {/* ── FLOAT BUTTON ── */}
+      {/* FLOAT BUTTON */}
       <button
         onClick={() => setOpen(o => !o)}
-        className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-accent text-white rounded-full shadow-lg shadow-accent/30 flex items-center justify-center hover:bg-accentDark transition-colors duration-200"
+        style={{
+          position: 'fixed',
+          bottom: 28, right: 28,
+          zIndex: 50,
+          width: 56, height: 56,
+          background: '#00adee',
+          border: 'none',
+          borderRadius: '50%',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          boxShadow: '0 8px 32px rgba(0,173,238,0.35)',
+          transition: 'transform 0.2s, background 0.2s',
+        }}
+        onMouseEnter={e => e.currentTarget.style.background = '#0090c8'}
+        onMouseLeave={e => e.currentTarget.style.background = '#00adee'}
         aria-label="Chat with us"
       >
         {open ? (
@@ -127,76 +118,93 @@ const Chatbot = () => {
               <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"
                 stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-            {/* unread dot */}
-            <span className="absolute top-1 right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-white" />
+            <span style={{ position: 'absolute', top: 4, right: 4, width: 12, height: 12, background: '#4ade80', borderRadius: '50%', border: '2px solid #fff' }} />
           </>
         )}
       </button>
 
-      {/* ── CHAT WINDOW ── */}
+      {/* CHAT WINDOW */}
       {open && (
-        <div
-          className="fixed bottom-24 right-6 z-50 flex flex-col bg-white border border-border shadow-xl"
-          style={{ width: 340, maxHeight: 520, borderRadius: 0 }}
-        >
+        <div style={{
+          position: 'fixed',
+          bottom: 100, right: 28,
+          zIndex: 50,
+          width: 340,
+          maxHeight: 520,
+          display: 'flex',
+          flexDirection: 'column',
+          background: '#fff',
+          border: '1px solid #e5e7eb',
+          boxShadow: '0 20px 60px rgba(0,0,0,0.12)',
+        }}>
           {/* HEADER */}
-          <div className="flex items-center gap-3 px-4 py-3 bg-accent flex-shrink-0">
-            <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center text-sm">🏗️</div>
-            <div>
-              <div className="text-white text-sm font-bold">AI Assistant</div>
-              <div className="text-white/70 text-xs">ACE Construct</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', background: '#00adee', flexShrink: 0 }}>
+            <div style={{ width: 36, height: 36, background: 'rgba(255,255,255,0.15)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+              <img src="/logo.png" alt="MB" style={{ width: 32, height: 32, objectFit: 'contain' }} onError={e => { e.target.style.display = 'none'; e.target.parentNode.textContent = '🏗️'; }} />
             </div>
-            <div className="ml-auto flex items-center gap-1.5">
-              <div className="w-2 h-2 bg-green-300 rounded-full animate-pulse" />
-              <span className="text-white/70 text-xs">Online</span>
+            <div>
+              <div style={{ fontFamily: "'Poppins'", fontWeight: 600, fontSize: 13, color: '#fff' }}>AI Assistant</div>
+              <div style={{ fontFamily: "'Poppins'", fontWeight: 300, fontSize: 11, color: 'rgba(255,255,255,0.7)' }}>MakeBuilders</div>
+            </div>
+            <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{ width: 8, height: 8, background: '#4ade80', borderRadius: '50%', animation: 'pulse 2s infinite' }} />
+              <span style={{ fontFamily: "'Poppins'", fontSize: 10, color: 'rgba(255,255,255,0.7)' }}>Online</span>
             </div>
           </div>
 
           {/* MESSAGES */}
-          <div className="flex-1 p-4 overflow-y-auto space-y-3" style={{ minHeight: 0 }}>
+          <div style={{ flex: 1, padding: 16, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 12, minHeight: 0 }}>
             {messages.map((m, i) => (
-              <div key={i} className={`flex ${m.from === 'user' ? 'justify-end' : 'justify-start'}`}>
+              <div key={i} style={{ display: 'flex', justifyContent: m.from === 'user' ? 'flex-end' : 'flex-start' }}>
                 {m.from === 'bot' && (
-                  <div className="w-6 h-6 rounded-full bg-accent/10 flex items-center justify-center text-xs mr-2 flex-shrink-0 mt-1">
+                  <div style={{ width: 24, height: 24, borderRadius: '50%', background: 'rgba(0,173,238,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, marginRight: 8, flexShrink: 0, marginTop: 4 }}>
                     🏗️
                   </div>
                 )}
-                <div className={`px-3 py-2 text-sm max-w-[78%] leading-relaxed ${
-                  m.from === 'bot'
-                    ? 'bg-gray-50 text-gray-800 border border-gray-100 rounded-lg rounded-tl-none'
-                    : 'bg-accent text-white rounded-lg rounded-tr-none'
-                }`}>
+                <div style={{
+                  padding: '10px 13px',
+                  fontSize: 13,
+                  fontFamily: "'Poppins'",
+                  fontWeight: 300,
+                  maxWidth: '78%',
+                  lineHeight: 1.6,
+                  borderRadius: m.from === 'bot' ? '0 12px 12px 12px' : '12px 0 12px 12px',
+                  background: m.from === 'bot' ? '#f9fafb' : '#00adee',
+                  color: m.from === 'bot' ? '#374151' : '#fff',
+                  border: m.from === 'bot' ? '1px solid #f3f4f6' : 'none',
+                }}>
                   {m.text}
                 </div>
               </div>
             ))}
 
-            {/* TYPING DOTS */}
             {loading && (
-              <div className="flex justify-start items-end gap-2">
-                <div className="w-6 h-6 rounded-full bg-accent/10 flex items-center justify-center text-xs flex-shrink-0">
-                  🏗️
-                </div>
-                <div className="bg-gray-50 border border-gray-100 rounded-lg rounded-tl-none px-4 py-3 flex items-center gap-1.5">
-                  {[0, 1, 2].map(i => (
-                    <span
-                      key={i}
-                      className="w-1.5 h-1.5 bg-accent rounded-full animate-bounce"
-                      style={{ animationDelay: `${i * 0.18}s` }}
-                    />
+              <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8 }}>
+                <div style={{ width: 24, height: 24, borderRadius: '50%', background: 'rgba(0,173,238,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12 }}>🏗️</div>
+                <div style={{ background: '#f9fafb', border: '1px solid #f3f4f6', borderRadius: '0 12px 12px 12px', padding: '12px 16px', display: 'flex', gap: 5 }}>
+                  {[0,1,2].map(i => (
+                    <span key={i} style={{ width: 6, height: 6, background: '#00adee', borderRadius: '50%', animation: `bounce 1.2s ${i*0.2}s infinite` }} />
                   ))}
                 </div>
               </div>
             )}
 
-            {/* QUICK REPLY SUGGESTIONS */}
             {!loading && suggestions.length > 0 && step === 'chat' && (
-              <div className="flex flex-wrap gap-2 pt-1">
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, paddingTop: 4 }}>
                 {suggestions.map((s, i) => (
-                  <button
-                    key={i}
-                    onClick={() => send(s)}
-                    className="text-xs px-3 py-1.5 border border-accent text-accent hover:bg-accent hover:text-white transition-colors duration-150 rounded-full"
+                  <button key={i} onClick={() => send(s)}
+                    style={{
+                      fontFamily: "'Poppins'", fontSize: 11, fontWeight: 400,
+                      padding: '6px 12px',
+                      border: '1px solid #00adee',
+                      color: '#00adee',
+                      background: 'transparent',
+                      borderRadius: 20,
+                      cursor: 'pointer',
+                      transition: 'all 0.15s',
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.background = '#00adee'; e.currentTarget.style.color = '#fff'; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#00adee'; }}
                   >
                     {s}
                   </button>
@@ -208,7 +216,7 @@ const Chatbot = () => {
           </div>
 
           {/* INPUT */}
-          <div className="flex border-t border-gray-100 flex-shrink-0">
+          <div style={{ display: 'flex', borderTop: '1px solid #f3f4f6', flexShrink: 0 }}>
             <input
               ref={inputRef}
               value={input}
@@ -216,26 +224,43 @@ const Chatbot = () => {
               onKeyDown={handleKey}
               placeholder={loading ? 'Thinking…' : 'Type a message…'}
               disabled={loading}
-              className="flex-1 bg-transparent text-gray-800 text-sm px-4 py-3 outline-none placeholder-gray-400 disabled:opacity-50"
+              style={{
+                flex: 1,
+                background: 'transparent',
+                border: 'none',
+                outline: 'none',
+                fontFamily: "'Poppins'",
+                fontWeight: 300,
+                fontSize: 13,
+                color: '#374151',
+                padding: '13px 16px',
+              }}
             />
             <button
               onClick={handleSend}
               disabled={loading || !input.trim()}
-              className="bg-accent text-white px-4 text-xs font-bold uppercase tracking-wider disabled:opacity-40 hover:bg-accentDark transition-colors flex-shrink-0"
+              style={{
+                background: '#00adee',
+                border: 'none',
+                padding: '0 16px',
+                cursor: loading || !input.trim() ? 'not-allowed' : 'pointer',
+                opacity: loading || !input.trim() ? 0.4 : 1,
+                transition: 'opacity 0.2s',
+                flexShrink: 0,
+              }}
             >
-              {loading ? (
-                <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-                  <circle cx="12" cy="12" r="10" stroke="white" strokeWidth="3" strokeDasharray="30 70"/>
-                </svg>
-              ) : (
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                  <path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              )}
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
             </button>
           </div>
         </div>
       )}
+
+      <style>{`
+        @keyframes bounce { 0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)} }
+        @keyframes pulse  { 0%,100%{opacity:1}50%{opacity:0.5} }
+      `}</style>
     </>
   );
 };

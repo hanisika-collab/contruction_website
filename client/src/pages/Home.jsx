@@ -6,10 +6,10 @@ import Pricing from '../components/Pricing';
 const CITIES = ['All', 'Bangalore', 'Chennai', 'Hyderabad', 'Coimbatore'];
 
 const Home = () => {
-  const [city, setCity] = useState('All');
+  const [city,     setCity]     = useState('All');
   const [projects, setProjects] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [loading,  setLoading]  = useState(true);
+  const [error,    setError]    = useState(null);
 
   useEffect(() => {
     setLoading(true);
@@ -19,42 +19,50 @@ const Home = () => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.json();
       })
-      .then(data => {
-        setProjects(data.data || []);
-        setLoading(false);
-      })
-      .catch(() => {
-        setError('Failed to load projects.');
-        setLoading(false);
-      });
+      .then(data => { setProjects(data.data || []); setLoading(false); })
+      .catch(() => { setError('Failed to load projects.'); setLoading(false); });
   }, []);
 
   const filteredProjects =
-    city === 'All'
-      ? projects
-      : projects.filter(p => p.city === city);
+    city === 'All' ? projects : projects.filter(p => p.city === city);
 
   return (
     <>
       <Hero />
 
-      {/* OUR WORKS SECTION */}
-      <section id="projects" className="bg-white px-6 md:px-12 py-28">
-        <div className="max-w-7xl mx-auto">
+      {/* ── OUR WORKS SECTION ─────────────────────────── */}
+      <section id="projects" className="bg-white px-6 md:px-12 py-28 relative overflow-hidden">
+
+        {/* Subtle accent gradient top-right */}
+        <div
+          className="absolute top-0 right-0 pointer-events-none"
+          style={{
+            width: '35vw', height: '35vw',
+            background: 'radial-gradient(circle, rgba(0,173,238,0.04) 0%, transparent 65%)',
+          }}
+        />
+
+        <div className="max-w-7xl mx-auto relative z-10">
 
           {/* HEADER */}
           <div className="mb-14">
-            <p className="text-xs uppercase tracking-[0.4em] text-accent mb-4 flex items-center gap-3 font-ui">
+            <p className="text-xs uppercase text-accent mb-3 flex items-center gap-3 font-ui font-600" style={{ letterSpacing: '0.35em' }}>
               <span className="w-8 h-px bg-accent" />
               Transformations
             </p>
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-              <h2 className="font-display text-text" style={{ fontSize: 'clamp(38px, 5vw, 70px)' }}>
+              <h2 className="font-display text-text font-700" style={{ fontSize: 'clamp(36px, 5vw, 68px)' }}>
                 Our <span className="text-accent italic">Work</span>
               </h2>
-              <p className="text-muted text-sm max-w-xs leading-relaxed">
-                Drag the slider to see the before & after of each transformation.
+              <p className="text-muted text-sm max-w-xs leading-relaxed font-body">
+                Drag the slider to witness the transformation — before meets after.
               </p>
+            </div>
+
+            {/* ACCENT RULE */}
+            <div className="mt-6 flex items-center gap-4">
+              <div className="section-line" />
+              <div className="h-px flex-1 bg-border" />
             </div>
           </div>
 
@@ -65,11 +73,12 @@ const Home = () => {
                 key={c}
                 onClick={() => setCity(c)}
                 className={`
-                  px-5 py-2 text-xs uppercase tracking-widest border transition-all duration-200 font-ui font-600
+                  px-5 py-2.5 text-[10px] uppercase tracking-widest border transition-all duration-250 font-ui font-700
                   ${city === c
-                    ? 'bg-accent text-white border-accent'
+                    ? 'bg-accent text-white border-accent shadow-accent'
                     : 'border-border text-muted hover:text-accent hover:border-accent bg-white'}
                 `}
+                style={{ letterSpacing: '0.2em' }}
               >
                 {c}
               </button>
@@ -78,26 +87,30 @@ const Home = () => {
 
           {/* LOADING */}
           {loading && (
-            <div className="text-center py-20 text-muted text-sm tracking-widest font-ui uppercase">
-              Loading projects...
+            <div className="text-center py-20">
+              <div className="inline-flex flex-col items-center gap-4">
+                <div className="w-10 h-10 border-2 border-border border-t-accent rounded-full animate-spin" />
+                <span className="text-muted text-xs tracking-widest font-ui uppercase">Loading projects...</span>
+              </div>
             </div>
           )}
 
           {/* ERROR */}
           {!loading && error && (
-            <div className="text-center py-20 text-red-500 text-sm">
-              {error}
-            </div>
+            <div className="text-center py-20 text-red-500 text-sm font-body">{error}</div>
           )}
 
           {/* EMPTY */}
           {!loading && !error && filteredProjects.length === 0 && (
-            <div className="text-center py-20 text-muted text-sm font-ui uppercase tracking-widest">
-              No projects found for this city.
+            <div className="text-center py-20">
+              <div className="w-16 h-16 border border-border flex items-center justify-center mx-auto text-2xl mb-4">🏠</div>
+              <p className="text-muted uppercase tracking-widest text-xs font-ui">
+                No projects found for this city.
+              </p>
             </div>
           )}
 
-          {/* PROJECTS LIST */}
+          {/* PROJECTS */}
           {!loading && !error && filteredProjects.length > 0 &&
             filteredProjects.map(p => (
               <BeforeAfterSlider
@@ -113,9 +126,6 @@ const Home = () => {
 
         </div>
       </section>
-
-      {/* DIVIDER */}
-      <div className="h-px bg-border mx-12" />
 
       <Pricing />
     </>

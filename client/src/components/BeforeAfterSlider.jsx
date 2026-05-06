@@ -1,8 +1,10 @@
 import React, { useState, useRef, useCallback } from 'react';
 
 const BeforeAfterSlider = ({ beforeImg, afterImg, title, category, year }) => {
-  const [pos, setPos] = useState(50);
-  const wrapRef = useRef(null);
+  const [pos, setPos]       = useState(50);
+  const [hov, setHov]       = useState(false);
+  const [drag, setDrag]     = useState(false);
+  const wrapRef             = useRef(null);
 
   const calcPos = useCallback((clientX) => {
     const rect = wrapRef.current?.getBoundingClientRect();
@@ -12,14 +14,32 @@ const BeforeAfterSlider = ({ beforeImg, afterImg, title, category, year }) => {
   }, []);
 
   return (
-    <div className="mb-20">
+    <article style={{ marginBottom: 72 }}>
 
-      {/* HEADER */}
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-text text-xs uppercase tracking-widest font-ui font-700">
-          {title}
-        </h3>
-        <span className="text-muted text-xs uppercase tracking-widest font-ui">
+      {/* HEADER ROW */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <span style={{ width: 20, height: 1.5, background: '#00adee', display: 'inline-block' }} />
+          <h3 style={{
+            fontFamily: "'Poppins', sans-serif",
+            fontWeight: 600,
+            fontSize: 11,
+            letterSpacing: '0.22em',
+            textTransform: 'uppercase',
+            color: '#111827',
+            margin: 0,
+          }}>
+            {title}
+          </h3>
+        </div>
+        <span style={{
+          fontFamily: "'Poppins', sans-serif",
+          fontWeight: 400,
+          fontSize: 10,
+          letterSpacing: '0.18em',
+          textTransform: 'uppercase',
+          color: '#9ca3af',
+        }}>
           {category}{year && ` · ${year}`}
         </span>
       </div>
@@ -27,66 +47,120 @@ const BeforeAfterSlider = ({ beforeImg, afterImg, title, category, year }) => {
       {/* SLIDER CONTAINER */}
       <div
         ref={wrapRef}
-        className="relative w-full overflow-hidden border border-border cursor-ew-resize select-none"
-        style={{ aspectRatio: '16 / 10' }}
-        onMouseMove={(e) => calcPos(e.clientX)}
-        onTouchMove={(e) => calcPos(e.touches[0].clientX)}
+        onMouseEnter={() => setHov(true)}
+        onMouseLeave={() => { setHov(false); setDrag(false); }}
+        onMouseDown={() => setDrag(true)}
+        onMouseUp={() => setDrag(false)}
+        onMouseMove={e => { if (drag || true) calcPos(e.clientX); }}
+        onTouchMove={e => calcPos(e.touches[0].clientX)}
+        style={{
+          position: 'relative',
+          width: '100%',
+          overflow: 'hidden',
+          aspectRatio: '16 / 9',
+          cursor: 'ew-resize',
+          userSelect: 'none',
+          outline: 'none',
+          border: `1px solid ${hov ? '#00adee' : '#e5e7eb'}`,
+          transition: 'border-color 0.3s',
+        }}
       >
-        {/* AFTER IMAGE (full width base) */}
+        {/* AFTER (right side) */}
         <img
           src={afterImg}
           alt="After"
-          className="absolute inset-0 w-full h-full object-cover"
           draggable={false}
+          style={{
+            position: 'absolute', inset: 0,
+            width: '100%', height: '100%',
+            objectFit: 'cover',
+            transition: 'transform 8s ease',
+            transform: hov ? 'scale(1.02)' : 'scale(1)',
+          }}
         />
 
-        {/* BEFORE IMAGE (clipped left) */}
-        <div
-          className="absolute inset-0 overflow-hidden"
-          style={{ width: `${pos}%` }}
-        >
+        {/* BEFORE (clipped) */}
+        <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', width: `${pos}%` }}>
           <img
             src={beforeImg}
             alt="Before"
-            className="absolute inset-0 w-full h-full object-cover"
-            style={{ width: `${(100 / pos) * 100}%`, maxWidth: 'none' }}
             draggable={false}
+            style={{
+              position: 'absolute', inset: 0,
+              width: `${(100 / pos) * 100}%`,
+              maxWidth: 'none',
+              height: '100%',
+              objectFit: 'cover',
+            }}
           />
         </div>
 
         {/* DIVIDER LINE */}
-        <div
-          className="absolute top-0 bottom-0 w-[2px] bg-accent z-10"
-          style={{ left: `${pos}%` }}
-        />
+        <div style={{
+          position: 'absolute', top: 0, bottom: 0,
+          left: `${pos}%`,
+          width: 2,
+          background: '#00adee',
+          zIndex: 10,
+          boxShadow: '0 0 16px rgba(0,173,238,0.5)',
+          transition: 'box-shadow 0.3s',
+        }} />
 
-        {/* HANDLE PILL */}
-        <div
-          className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-20 flex items-center justify-center bg-accent text-white rounded-full shadow-lg"
-          style={{ left: `${pos}%`, width: 36, height: 36 }}
-        >
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M5 8H1M11 8h4M5 5l-3 3 3 3M11 5l3 3-3 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        {/* HANDLE */}
+        <div style={{
+          position: 'absolute',
+          top: '50%',
+          left: `${pos}%`,
+          transform: `translate(-50%, -50%) scale(${hov ? 1.1 : 1})`,
+          zIndex: 20,
+          width: 46, height: 46,
+          background: '#00adee',
+          borderRadius: '50%',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: hov ? '0 4px 24px rgba(0,173,238,0.5)' : '0 2px 12px rgba(0,173,238,0.3)',
+          transition: 'transform 0.25s, box-shadow 0.25s',
+        }}>
+          <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
+            <path d="M5 8H1M11 8h4M5 5l-3 3 3 3M11 5l3 3-3 3" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </div>
 
         {/* LABELS */}
-        <div className="absolute top-3 left-3 z-10 bg-white/90 backdrop-blur text-text text-[10px] font-ui font-700 uppercase tracking-wider px-2 py-1">
+        <div style={{
+          position: 'absolute', top: 14, left: 14, zIndex: 10,
+          background: 'rgba(255,255,255,0.9)',
+          backdropFilter: 'blur(10px)',
+          fontFamily: "'Poppins', sans-serif",
+          fontSize: 9, fontWeight: 700,
+          letterSpacing: '0.25em',
+          textTransform: 'uppercase',
+          color: '#111827',
+          padding: '5px 11px',
+        }}>
           Before
         </div>
-        <div className="absolute top-3 right-3 z-10 bg-accent text-white text-[10px] font-ui font-700 uppercase tracking-wider px-2 py-1">
+        <div style={{
+          position: 'absolute', top: 14, right: 14, zIndex: 10,
+          background: '#00adee',
+          fontFamily: "'Poppins', sans-serif",
+          fontSize: 9, fontWeight: 700,
+          letterSpacing: '0.25em',
+          textTransform: 'uppercase',
+          color: '#fff',
+          padding: '5px 11px',
+        }}>
           After
         </div>
-
       </div>
 
-      {/* CAPTION LINE */}
-      <div className="mt-3 flex items-center gap-2">
-        <span className="w-4 h-px bg-accent" />
-        <span className="text-muted text-xs font-ui">Drag to compare</span>
+      {/* CAPTION */}
+      <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+        <span style={{ width: 14, height: 1, background: '#00adee', display: 'inline-block' }} />
+        <span style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 300, fontSize: 11, color: '#9ca3af', letterSpacing: '0.08em' }}>
+          Drag to compare
+        </span>
       </div>
-
-    </div>
+    </article>
   );
 };
 
