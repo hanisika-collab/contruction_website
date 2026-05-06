@@ -1,15 +1,21 @@
 import React from 'react';
 import { HashRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
 
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
-import Home from './pages/Home';
+import Navbar    from './components/Navbar';
+import Footer    from './components/Footer';
+import Chatbot   from './components/Chatbot';
+
+// Public Pages
+import Home       from './pages/Home';
+import Portfolio  from './pages/Portfolio';
+import Packages   from './pages/Packages';
+import Interiors  from './pages/Interiors';
+import Commercial from './pages/Commercial';
 import CityDetails from './pages/CityDetails';
-import Contact from './pages/Contact';
-import Chatbot from './components/Chatbot';
+import Contact    from './pages/Contact';
 
 // Admin Pages
-import AdminLogin from './pages/AdminLogin';
+import AdminLogin     from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 
 /* ── Protected Route ─────────────────────────────────── */
@@ -42,9 +48,13 @@ function App() {
             <>
               <Navbar />
               <Routes>
-                <Route path="/" element={<Home />} />
+                <Route path="/"            element={<Home />}        />
+                <Route path="/portfolio"   element={<Portfolio />}   />
+                <Route path="/packages"    element={<Packages />}    />
+                <Route path="/interiors"   element={<Interiors />}   />
+                <Route path="/commercial"  element={<Commercial />}  />
+                <Route path="/contact"     element={<Contact />}     />
                 <Route path="/city/:cityName" element={<CityDetails />} />
-                <Route path="/contact" element={<Contact />} />
 
                 {/* 404 */}
                 <Route
@@ -68,8 +78,8 @@ function App() {
                       </p>
                       <Link
                         to="/"
-                        className="btn-premium bg-accent text-white px-8 py-3 text-xs uppercase tracking-widest font-ui font-700 hover:bg-accentDark transition-colors"
-                        style={{ boxShadow: '0 8px 24px rgba(0,173,238,0.35)' }}
+                        className="bg-accent text-white px-8 py-3 text-xs uppercase tracking-widest font-ui font-700 hover:bg-accentDark transition-colors"
+                        style={{ boxShadow: '0 8px 24px rgba(0,173,238,0.35)', textDecoration: 'none' }}
                       >
                         Back to Home
                       </Link>

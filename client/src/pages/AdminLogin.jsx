@@ -80,9 +80,11 @@ const AdminLogin = () => {
               background: 'linear-gradient(135deg,#00adee,#0078ba)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
-              <svg width="20" height="20" viewBox="0 0 16 16" fill="none">
-                <path d="M8 2L14 6V14H10V10H6V14H2V6L8 2Z" fill="white" />
-              </svg>
+              <img 
+              src="/logo.png" 
+              alt="MakeBuilders" 
+              style={{ height: '100%', width: 'auto', objectFit: 'contain' }} 
+            />
             </div>
             <div style={{ fontSize: 16, fontWeight: 800, letterSpacing: '0.08em', color: '#fff' }}>
               Make<span style={{ color: '#00adee' }}>Builders</span>

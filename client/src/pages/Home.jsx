@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import Hero from '../components/Hero';
 import BeforeAfterSlider from '../components/BeforeAfterSlider';
 import Pricing from '../components/Pricing';
 
-const CITIES = ['All', 'Bangalore', 'Chennai', 'Hyderabad', 'Coimbatore'];
+const CITIES = ['All', 'Bangalore', 'Krishnagiri'];
 
 const Home = () => {
-  const [city,     setCity]     = useState('All');
+  const [city, setCity] = useState('All');
   const [projects, setProjects] = useState([]);
-  const [loading,  setLoading]  = useState(true);
-  const [error,    setError]    = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     setLoading(true);
@@ -19,116 +20,128 @@ const Home = () => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.json();
       })
-      .then(data => { setProjects(data.data || []); setLoading(false); })
-      .catch(() => { setError('Failed to load projects.'); setLoading(false); });
+      .then(data => { 
+        setProjects(data.data || []); 
+        setLoading(false); 
+      })
+      .catch(() => { 
+        setError('Failed to load projects.'); 
+        setLoading(false); 
+      });
   }, []);
 
   const filteredProjects =
     city === 'All' ? projects : projects.filter(p => p.city === city);
 
   return (
-    <>
+    <div className="bg-white">
       <Hero />
 
       {/* ── OUR WORKS SECTION ─────────────────────────── */}
-      <section id="projects" className="bg-white px-6 md:px-12 py-28 relative overflow-hidden">
-
-        {/* Subtle accent gradient top-right */}
+      {/* py-44 increases whitespace for a premium "gallery" feel */}
+      <section id="projects" className="bg-white px-8 md:px-20 py-44 relative overflow-hidden">
+        
+        {/* Softer Radial Gradient Overlay */}
         <div
           className="absolute top-0 right-0 pointer-events-none"
           style={{
-            width: '35vw', height: '35vw',
-            background: 'radial-gradient(circle, rgba(0,173,238,0.04) 0%, transparent 65%)',
+            width: '45vw', height: '45vw',
+            background: 'radial-gradient(circle, rgba(0,173,238,0.02) 0%, transparent 70%)',
           }}
         />
 
-        <div className="max-w-7xl mx-auto relative z-10">
+        <div className="max-w-screen-2xl mx-auto relative z-10">
 
-          {/* HEADER */}
-          <div className="mb-14">
-            <p className="text-xs uppercase text-accent mb-3 flex items-center gap-3 font-ui font-600" style={{ letterSpacing: '0.35em' }}>
-              <span className="w-8 h-px bg-accent" />
-              Transformations
-            </p>
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-              <h2 className="font-display text-text font-700" style={{ fontSize: 'clamp(36px, 5vw, 68px)' }}>
-                Our <span className="text-accent italic">Work</span>
-              </h2>
-              <p className="text-muted text-sm max-w-xs leading-relaxed font-body">
-                Drag the slider to witness the transformation — before meets after.
+          {/* CENTERED HEADER - More high-end architectural studio feel */}
+          <div className="mb-32 text-center">
+            <div className="inline-flex flex-col items-center">
+              <p className="text-[10px] uppercase text-accent/60 mb-6 flex items-center gap-4 font-ui font-400" style={{ letterSpacing: '0.5em' }}>
+                <span className="w-6 h-px bg-accent/40" />
+                Transformations
+                <span className="w-6 h-px bg-accent/40" />
               </p>
-            </div>
-
-            {/* ACCENT RULE */}
-            <div className="mt-6 flex items-center gap-4">
-              <div className="section-line" />
-              <div className="h-px flex-1 bg-border" />
+              <h2 className="font-display text-text font-200 tracking-tight leading-none" style={{ fontSize: 'clamp(48px, 6vw, 92px)' }}>
+                Our <span className="italic font-serif font-light">Portfolio</span>
+              </h2>
+              <div className="w-12 h-px bg-accent/20 mt-12 mb-8" />
+              <p className="text-muted/60 text-xs max-w-sm leading-relaxed font-body tracking-wider uppercase">
+                Interactive before and after project showcases.
+              </p>
             </div>
           </div>
 
-          {/* CITY FILTER */}
-          <div className="flex flex-wrap gap-2 mb-16">
+          {/* CITY FILTER - Minimalist link style instead of heavy buttons */}
+          <div className="flex justify-center flex-wrap gap-10 mb-24 border-b border-gray-50 pb-10">
             {CITIES.map(c => (
               <button
                 key={c}
                 onClick={() => setCity(c)}
                 className={`
-                  px-5 py-2.5 text-[10px] uppercase tracking-widest border transition-all duration-250 font-ui font-700
-                  ${city === c
-                    ? 'bg-accent text-white border-accent shadow-accent'
-                    : 'border-border text-muted hover:text-accent hover:border-accent bg-white'}
+                  relative text-[10px] uppercase tracking-[0.3em] transition-all duration-500 font-ui
+                  ${city === c ? 'text-accent' : 'text-muted/50 hover:text-text'}
                 `}
-                style={{ letterSpacing: '0.2em' }}
               >
                 {c}
+                {city === c && (
+                  <span className="absolute -bottom-10 left-1/2 -translate-x-1/2 w-1 h-1 bg-accent rounded-full" />
+                )}
               </button>
             ))}
           </div>
 
-          {/* LOADING */}
           {loading && (
-            <div className="text-center py-20">
-              <div className="inline-flex flex-col items-center gap-4">
-                <div className="w-10 h-10 border-2 border-border border-t-accent rounded-full animate-spin" />
-                <span className="text-muted text-xs tracking-widest font-ui uppercase">Loading projects...</span>
+            <div className="text-center py-32">
+              <div className="inline-flex flex-col items-center gap-6">
+                <div className="w-8 h-8 border-t-2 border-accent/30 rounded-full animate-spin" />
+                <span className="text-muted/40 text-[9px] tracking-[0.4em] font-ui uppercase">Fetching Archive</span>
               </div>
             </div>
           )}
 
-          {/* ERROR */}
           {!loading && error && (
-            <div className="text-center py-20 text-red-500 text-sm font-body">{error}</div>
+            <div className="text-center py-20 text-red-400 text-xs font-ui tracking-widest uppercase">{error}</div>
           )}
 
-          {/* EMPTY */}
           {!loading && !error && filteredProjects.length === 0 && (
-            <div className="text-center py-20">
-              <div className="w-16 h-16 border border-border flex items-center justify-center mx-auto text-2xl mb-4">🏠</div>
-              <p className="text-muted uppercase tracking-widest text-xs font-ui">
-                No projects found for this city.
+            <div className="text-center py-32 border border-gray-50">
+              <p className="text-muted/40 uppercase tracking-[0.3em] text-[10px] font-ui">
+                No archived projects in {city}
               </p>
             </div>
           )}
 
-          {/* PROJECTS */}
-          {!loading && !error && filteredProjects.length > 0 &&
-            filteredProjects.map(p => (
-              <BeforeAfterSlider
-                key={p._id}
-                title={p.title}
-                beforeImg={p.images?.before}
-                afterImg={p.images?.after}
-                category={p.city}
-                year={p.year}
-              />
-            ))
-          }
+          {!loading && !error && filteredProjects.length > 0 && (
+            <div style={{ maxWidth: 1000, margin: '0 auto' }} className="grid gap-40">
+              {filteredProjects.slice(0, 4).map(p => (
+                <div key={p._id} className="premium-card transition-all duration-1000">
+                  <BeforeAfterSlider
+                    title={p.title}
+                    beforeImg={p.images?.before}
+                    afterImg={p.images?.after}
+                    category={p.city}
+                    year={p.year}
+                  />
+                </div>
+              ))}
 
+              {filteredProjects.length > 4 && (
+                <div className="text-center pt-10">
+                  <Link to="/portfolio"
+                    className="inline-block border border-accent/20 text-accent px-12 py-5 text-[10px] uppercase tracking-[0.3em] font-ui font-500 hover:bg-accent hover:text-white transition-all duration-500"
+                    style={{ textDecoration: 'none' }}>
+                    View Full Archive ({filteredProjects.length})
+                  </Link>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </section>
 
+      {/* Spacing adjustment for the Pricing section transition */}
+      <div className="py-20 bg-gray-50/30" />
       <Pricing />
-    </>
+    </div>
   );
 };
 

@@ -16,9 +16,8 @@ const CardSkeleton = () => (
 
 const CITY_TAGLINES = {
   Bangalore:  'Silicon Valley of India, built with precision.',
-  Chennai:    'Heritage meets modernity.',
-  Hyderabad:  'The city of pearls deserves exceptional homes.',
-  Coimbatore: 'Industrial spirit, luxury finish.',
+  Krishnagiri:    'Heritage meets modernity.',
+ 
 };
 
 const CityDetails = () => {

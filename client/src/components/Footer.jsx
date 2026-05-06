@@ -174,7 +174,7 @@ const Footer = () => {
                 <a href="mailto:makelabsmail@gmail.com" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>makelabsmail@gmail.com</a>
               </InfoRow>
               <InfoRow icon={MapPin}>
-                No. 14, 3rd Cross, Indiranagar<br />Bengaluru — 560 038
+                G6C8+8X7,Co-Operative Colony<br />Thiruvalluvar Nagar<br />Krishnagiri <br/>Tamilnadu-635002
               </InfoRow>
             </div>
 

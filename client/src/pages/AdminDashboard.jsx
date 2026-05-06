@@ -1,18 +1,17 @@
 // AdminDashboard.jsx — MakeBuilders branded version
-// (Full functionality preserved — only brand names updated)
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 /* ─── PALETTE ─────────────────────────────────────────── */
 const C = {
-  accent:    '#00adee',
-  accentDark:'#0090c8',
-  bg:        '#f8f9fa',
-  white:     '#ffffff',
-  text:      '#111827',
-  muted:     '#6b7280',
-  border:    '#e5e7eb',
-  focus:     '#00adee',
+  accent:     '#00adee',
+  accentDark: '#0090c8',
+  bg:         '#f8f9fa',
+  white:      '#ffffff',
+  text:       '#111827',
+  muted:      '#6b7280',
+  border:     '#e5e7eb',
+  focus:      '#00adee',
 };
 
 const inputStyle = (focused) => ({
@@ -204,7 +203,7 @@ const Modal = ({ open, onClose, title, children }) => {
 };
 
 /* ══════════════════════════════════════════════════════════
-   WORKS SECTION
+    WORKS SECTION
 ══════════════════════════════════════════════════════════ */
 const EMPTY_PROJECT = {
   title: '', city: '', category: 'Residential',
@@ -346,7 +345,7 @@ const WorksSection = ({ toast }) => {
               <Input value={form.title} onChange={setField('title')} placeholder="e.g. Luxury Villa Renovation" />
             </Field>
             <Field label="City" half>
-              <Select value={form.city} onChange={setField('city')} options={['Bangalore', 'Chennai', 'Hyderabad', 'Coimbatore']} placeholder="Select city" />
+              <Select value={form.city} onChange={setField('city')} options={['Bangalore', 'Krishnagiri']} placeholder="Select city" />
             </Field>
             <Field label="Category" half>
               <Select value={form.category} onChange={setField('category')} options={['Residential', 'Commercial', 'Interior']} />
@@ -375,27 +374,52 @@ const WorksSection = ({ toast }) => {
 };
 
 /* ══════════════════════════════════════════════════════════
-   PRICING SECTION
+    PRICING SECTION - Updated with Material Specifications
 ══════════════════════════════════════════════════════════ */
-const EMPTY_PACKAGE = { name: '', tagline: '', price: '', badge: '', featured: false, features: [''] };
+const EMPTY_PACKAGE = { 
+  name: '', 
+  tagline: '', 
+  price: '', 
+  badge: '', 
+  featured: false, 
+  features: [''],
+  specs: {
+    Cement: '',
+    Steel: '',
+    Bricks: '',
+    Door: '',
+    Windows: '',
+    Tiles: '',
+    Electrical: '',
+    Paint: ''
+  }
+};
 
 const PricingSection = ({ toast }) => {
-  const [packages,  setPackages]  = useState([]);
+  const [packages, setPackages] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
-  const [editing,   setEditing]   = useState(null);
-  const [form,      setForm]      = useState(EMPTY_PACKAGE);
-  const [saving,    setSaving]    = useState(false);
+  const [editing, setEditing] = useState(null);
+  const [form, setForm] = useState(EMPTY_PACKAGE);
+  const [saving, setSaving] = useState(false);
 
   const loadPackages = async () => {
-    try { const res = await fetch('http://localhost:5000/api/packages'); const data = await res.json(); setPackages(data.data || []); }
-    catch { setPackages([]); }
+    try { 
+      const res = await fetch('http://localhost:5000/api/packages'); 
+      const data = await res.json(); 
+      setPackages(data.data || []); 
+    } catch { setPackages([]); }
   };
   useEffect(() => { loadPackages(); }, []);
 
-  const openNew  = () => { setEditing(null); setForm(EMPTY_PACKAGE); setModalOpen(true); };
+  const openNew = () => { setEditing(null); setForm(EMPTY_PACKAGE); setModalOpen(true); };
+  
   const openEdit = (pkg) => {
     setEditing(pkg.id);
-    setForm({ name: pkg.name||'', tagline: pkg.tagline||'', price: pkg.price||'', badge: pkg.badge||'', featured: pkg.featured||false, features: pkg.features?.length ? pkg.features : [''] });
+    setForm({ 
+      ...pkg,
+      features: pkg.features?.length ? pkg.features : [''],
+      specs: pkg.specs || EMPTY_PACKAGE.specs 
+    });
     setModalOpen(true);
   };
 
@@ -403,13 +427,23 @@ const PricingSection = ({ toast }) => {
     if (!form.name.trim()) return toast('Package name is required', 'error');
     if (!form.price.trim()) return toast('Price is required', 'error');
     setSaving(true);
+    
     const payload = { ...form, features: form.features.filter(f => f.trim()) };
+    
     try {
-      const url    = editing ? `http://localhost:5000/api/packages/${editing}` : 'http://localhost:5000/api/packages';
+      const url = editing ? `http://localhost:5000/api/packages/${editing}` : 'http://localhost:5000/api/packages';
       const method = editing ? 'PUT' : 'POST';
-      const res    = await fetch(url, { method, headers: authHeaders(), body: JSON.stringify(payload) });
-      if (!res.ok) { const errData = await res.json().catch(() => ({})); toast(errData.message || `Save failed (HTTP ${res.status})`, 'error'); setSaving(false); return; }
-      toast(editing ? 'Package updated!' : 'Package added!'); setModalOpen(false); loadPackages();
+      const res = await fetch(url, { method, headers: authHeaders(), body: JSON.stringify(payload) });
+      
+      if (!res.ok) { 
+        const errData = await res.json().catch(() => ({})); 
+        toast(errData.message || `Save failed (HTTP ${res.status})`, 'error'); 
+        setSaving(false); return; 
+      }
+      
+      toast(editing ? 'Package updated!' : 'Package added!'); 
+      setModalOpen(false); 
+      loadPackages();
     } catch { toast('Network error — is the server running?', 'error'); }
     setSaving(false);
   };
@@ -422,80 +456,131 @@ const PricingSection = ({ toast }) => {
     } catch { toast('Network error', 'error'); }
   };
 
-  const setFeature    = (i, val) => setForm(f => { const features = [...f.features]; features[i] = val; return { ...f, features }; });
-  const addFeature    = () => setForm(f => ({ ...f, features: [...f.features, ''] }));
+  const setFeature = (i, val) => setForm(f => { const features = [...f.features]; features[i] = val; return { ...f, features }; });
+  const addFeature = () => setForm(f => ({ ...f, features: [...f.features, ''] }));
   const removeFeature = (i) => setForm(f => ({ ...f, features: f.features.filter((_, j) => j !== i) }));
+  
+  const setSpecValue = (key, val) => setForm(f => ({
+    ...f,
+    specs: { ...f.specs, [key]: val }
+  }));
 
   return (
     <div>
-      <SectionHeader title="Pricing Packages" subtitle="Add, edit or remove pricing tiers" action={<button onClick={openNew} style={btnPrimary}>+ Add Package</button>} />
+      <SectionHeader title="Pricing Packages" subtitle="Manage tiers and material specifications" action={<button onClick={openNew} style={btnPrimary}>+ Add Package</button>} />
+      
       {packages.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '60px 0', color: C.muted, border: `2px dashed ${C.border}` }}>
           <div style={{ fontSize: 36, marginBottom: 12 }}>💰</div>
           <div style={{ fontSize: 14 }}>No packages yet. Click "Add Package" to get started.</div>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 16 }}>
           {packages.map(pkg => (
             <div key={pkg.id} style={{ background: C.white, border: `1.5px solid ${pkg.featured ? C.accent : C.border}`, padding: 24, position: 'relative' }}>
               {pkg.badge && <div style={{ position: 'absolute', top: -1, right: 20, background: C.accent, color: '#fff', fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', padding: '3px 12px' }}>{pkg.badge}</div>}
-              <div style={{ fontSize: 20, fontWeight: 800, color: C.text, marginBottom: 4 }}>{pkg.name}</div>
-              <div style={{ fontSize: 12, color: C.muted, marginBottom: 16 }}>{pkg.tagline}</div>
-              <div style={{ fontSize: 28, fontWeight: 800, color: C.accent, marginBottom: 16 }}>₹{pkg.price}<span style={{ fontSize: 12, fontWeight: 400, color: C.muted }}>/sq.ft</span></div>
-              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 20px', display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {(pkg.features || []).slice(0, 4).map((f, i) => (<li key={i} style={{ fontSize: 12, color: C.muted, display: 'flex', gap: 8 }}><span style={{ color: C.accent, fontWeight: 700 }}>✓</span>{f}</li>))}
-                {pkg.features?.length > 4 && <li style={{ fontSize: 11, color: C.accent }}>+{pkg.features.length - 4} more features</li>}
-              </ul>
+              
+              <div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 4 }}>{pkg.name}</div>
+              <div style={{ fontSize: 24, fontWeight: 800, color: C.accent, marginBottom: 12 }}>₹{pkg.price}<span style={{ fontSize: 12, fontWeight: 400, color: C.muted }}>/sq.ft</span></div>
+              
+              <div style={{ background: '#f8f9fa', padding: '10px', marginBottom: 12, borderRadius: '4px' }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: C.accent, textTransform: 'uppercase', marginBottom: 6 }}>Material Highlights</div>
+                <div style={{ fontSize: 11, color: C.muted, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px' }}>
+                  <div>Cement: {pkg.specs?.Cement || '—'}</div>
+                  <div>Steel: {pkg.specs?.Steel || '—'}</div>
+                </div>
+              </div>
+
               <div style={{ display: 'flex', gap: 8 }}>
-                <button onClick={() => openEdit(pkg)} style={{ ...btnPrimary, padding: '8px 14px', fontSize: 11, flex: 1 }}>Edit</button>
+                <button onClick={() => openEdit(pkg)} style={{ ...btnPrimary, padding: '8px 14px', fontSize: 11, flex: 1 }}>Edit Details</button>
                 <button onClick={() => handleDelete(pkg.id)} style={btnDanger}>Delete</button>
               </div>
             </div>
           ))}
         </div>
       )}
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editing ? 'Edit Package' : 'Add Pricing Package'}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-          <div style={{ display: 'flex', gap: 16 }}>
-            <Field label="Package Name" half><Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="e.g. Royale" /></Field>
-            <Field label="Price (₹ per sq.ft)" half><Input value={form.price} onChange={e => setForm(f => ({ ...f, price: e.target.value }))} placeholder="e.g. 2,250" /></Field>
+
+<Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editing ? 'Edit Package' : 'Add Pricing Package'}>
+  <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+    
+    {/* PACKAGE NAME & PRICE */}
+    <div style={{ display: 'flex', gap: 16 }}>
+      <Field label="Package Name" half><Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="e.g. Royale" /></Field>
+      <Field label="Price (₹/sq.ft)" half><Input value={form.price} onChange={e => setForm(f => ({ ...f, price: e.target.value }))} placeholder="e.g. 2,000" /></Field>
+    </div>
+
+    {/* TAGLINE & BADGE (THE ADDED SECTION) */}
+    <div style={{ display: 'flex', gap: 16 }}>
+      <Field label="Tagline" half>
+        <Input value={form.tagline} onChange={e => setForm(f => ({ ...f, tagline: e.target.value }))} placeholder="Short description" />
+      </Field>
+      <Field label="Badge Highlight" half>
+        <Input value={form.badge} onChange={e => setForm(f => ({ ...f, badge: e.target.value }))} placeholder="e.g. Most Popular" />
+      </Field>
+    </div>
+
+    {/* FEATURED CHECKBOX */}
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+      <input 
+        type="checkbox" 
+        id="featured" 
+        checked={form.featured} 
+        onChange={e => setForm(f => ({ ...f, featured: e.target.checked }))} 
+        style={{ width: 16, height: 16, cursor: 'pointer' }}
+      />
+      <label htmlFor="featured" style={{ fontSize: 13, color: C.text, cursor: 'pointer', fontWeight: 500 }}>
+        Highlight as Featured Card (Blue Background)
+      </label>
+    </div>
+
+    {/* MATERIAL SPECIFICATIONS (Brands) */}
+    <div style={{ border: `1px solid ${C.border}`, padding: '16px', borderRadius: '4px', background: '#fdfdfd' }}>
+      <label style={{ ...labelStyle, color: C.accent, marginBottom: 12 }}>Material Specifications (Brands)</label>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+        {Object.keys(EMPTY_PACKAGE.specs).map(key => (
+          <div key={key}>
+            <label style={{ fontSize: 10, fontWeight: 600, color: C.muted, display: 'block', marginBottom: 4 }}>{key}</label>
+            <Input 
+              value={form.specs[key]} 
+              onChange={(e) => setSpecValue(key, e.target.value)} 
+              placeholder={`Brand for ${key}`} 
+            />
           </div>
-          <Field label="Tagline"><Input value={form.tagline} onChange={e => setForm(f => ({ ...f, tagline: e.target.value }))} placeholder="Short description of this tier" /></Field>
-          <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
-            <Field label="Badge (optional)" half><Input value={form.badge} onChange={e => setForm(f => ({ ...f, badge: e.target.value }))} placeholder="e.g. Most Popular" /></Field>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, paddingTop: 18 }}>
-              <input type="checkbox" id="featured" checked={form.featured} onChange={e => setForm(f => ({ ...f, featured: e.target.checked }))} style={{ width: 16, height: 16, accentColor: C.accent }} />
-              <label htmlFor="featured" style={{ fontSize: 13, color: C.text, cursor: 'pointer' }}>Featured / Highlighted</label>
-            </div>
+        ))}
+      </div>
+    </div>
+
+    {/* OTHER INCLUSIONS */}
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+        <label style={labelStyle}>Other Inclusions</label>
+        <button onClick={addFeature} style={{ background: 'none', border: `1px solid ${C.accent}`, color: C.accent, fontSize: 11, fontWeight: 700, cursor: 'pointer', padding: '4px 10px' }}>+ Add</button>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {form.features.map((f, i) => (
+          <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <Input value={f} onChange={e => setFeature(i, e.target.value)} placeholder="e.g. 2 Years Warranty" />
+            {form.features.length > 1 && <button onClick={() => removeFeature(i)} style={{ border: 'none', color: '#e53e3e', background: 'none', cursor: 'pointer', fontSize: 18 }}>×</button>}
           </div>
-          <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-              <label style={labelStyle}>Features / Inclusions</label>
-              <button onClick={addFeature} style={{ background: 'none', border: `1px solid ${C.accent}`, color: C.accent, fontSize: 11, fontWeight: 700, cursor: 'pointer', padding: '4px 10px' }}>+ Add Feature</button>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {form.features.map((f, i) => (
-                <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                  <div style={{ flex: 1 }}><Input value={f} onChange={e => setFeature(i, e.target.value)} placeholder={`Feature ${i + 1}`} /></div>
-                  {form.features.length > 1 && <button onClick={() => removeFeature(i)} style={{ background: 'none', border: 'none', color: '#e53e3e', cursor: 'pointer', fontSize: 20, lineHeight: 1, flexShrink: 0 }}>×</button>}
-                </div>
-              ))}
-            </div>
-          </div>
-          <div style={{ display: 'flex', gap: 12, paddingTop: 8, borderTop: `1px solid ${C.border}` }}>
-            <button onClick={handleSave} disabled={saving} style={{ ...btnPrimary, flex: 1, opacity: saving ? 0.7 : 1, cursor: saving ? 'not-allowed' : 'pointer' }}>
-              {saving ? 'Saving…' : editing ? 'Update Package' : 'Add Package'}
-            </button>
-            <button onClick={() => setModalOpen(false)} style={btnGhost}>Cancel</button>
-          </div>
-        </div>
-      </Modal>
+        ))}
+      </div>
+    </div>
+
+    {/* SAVE / CANCEL */}
+    <div style={{ display: 'flex', gap: 12, paddingTop: 8, borderTop: `1px solid ${C.border}` }}>
+      <button onClick={handleSave} disabled={saving} style={{ ...btnPrimary, flex: 1, opacity: saving ? 0.7 : 1 }}>
+        {saving ? 'Saving…' : editing ? 'Update Package' : 'Add Package'}
+      </button>
+      <button onClick={() => setModalOpen(false)} style={btnGhost}>Cancel</button>
+    </div>
+  </div>
+</Modal>
     </div>
   );
 };
 
 /* ══════════════════════════════════════════════════════════
-   MAIN DASHBOARD
+    MAIN DASHBOARD
 ══════════════════════════════════════════════════════════ */
 const AdminDashboard = () => {
   const [tab,   setTab]   = useState('works');
@@ -529,11 +614,14 @@ const AdminDashboard = () => {
         justifyContent: 'space-between', height: 60,
         position: 'sticky', top: 0, zIndex: 100,
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ width: 32, height: 32, background: 'linear-gradient(135deg,#00adee,#0078ba)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M8 2L14 6V14H10V10H6V14H2V6L8 2Z" fill="white" />
-            </svg>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          {/* LOGO UPDATED HERE */}
+          <div style={{ height: 38, display: 'flex', alignItems: 'center' }}>
+            <img 
+              src="/logo.png" 
+              alt="MakeBuilders" 
+              style={{ height: '100%', width: 'auto', objectFit: 'contain' }} 
+            />
           </div>
           <div style={{ fontWeight: 800, fontSize: 15, letterSpacing: '0.10em', textTransform: 'uppercase' }}>
             Make<span style={{ color: C.accent }}>Builders</span>

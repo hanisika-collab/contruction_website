@@ -21,7 +21,7 @@ const Project = sequelize.define('Project', {
   },
 
   city: {
-    type: DataTypes.ENUM('Bangalore', 'Chennai', 'Hyderabad', 'Coimbatore'),
+    type: DataTypes.ENUM('Bangalore', 'Krishnagiri'),
     allowNull: false,
   },
 
