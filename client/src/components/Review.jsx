@@ -388,7 +388,7 @@ const Reviews = ({ autoScroll = true, speed = 0.5 }) => {
   const touchStartX = useRef(0);
   const touchOffsetRef = useRef(0);
   const [isVisible, setIsVisible] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
+
 
   /* ─── Intersection Observer for section reveal ── */
   useEffect(() => {
