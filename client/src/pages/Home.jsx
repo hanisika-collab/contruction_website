@@ -38,10 +38,8 @@ const Home = () => {
       <Hero />
 
       {/* ── OUR WORKS SECTION ─────────────────────────── */}
-      {/* py-44 increases whitespace for a premium "gallery" feel */}
       <section id="projects" className="bg-white px-8 md:px-20 py-44 relative overflow-hidden">
         
-        {/* Softer Radial Gradient Overlay */}
         <div
           className="absolute top-0 right-0 pointer-events-none"
           style={{
@@ -52,7 +50,7 @@ const Home = () => {
 
         <div className="max-w-screen-2xl mx-auto relative z-10">
 
-          {/* CENTERED HEADER - More high-end architectural studio feel */}
+          {/* HEADER */}
           <div className="mb-32 text-center">
             <div className="inline-flex flex-col items-center">
               <p className="text-[10px] uppercase text-accent/60 mb-6 flex items-center gap-4 font-ui font-400" style={{ letterSpacing: '0.5em' }}>
@@ -64,20 +62,24 @@ const Home = () => {
                 Our <span className="italic font-serif font-light">Portfolio</span>
               </h2>
               <div className="w-12 h-px bg-accent/20 mt-12 mb-8" />
-              <p className="text-muted/60 text-xs max-w-sm leading-relaxed font-body tracking-wider uppercase">
+              <p
+                className="text-muted/60 text-xs max-w-sm leading-relaxed tracking-wider uppercase"
+                style={{ fontFamily: 'Poppins' }}
+              >
                 Interactive before and after project showcases.
               </p>
             </div>
           </div>
 
-          {/* CITY FILTER - Minimalist link style instead of heavy buttons */}
+          {/* CITY FILTER */}
           <div className="flex justify-center flex-wrap gap-10 mb-24 border-b border-gray-50 pb-10">
             {CITIES.map(c => (
               <button
                 key={c}
                 onClick={() => setCity(c)}
+                style={{ fontFamily: "'Poppins', sans-serif" }}
                 className={`
-                  relative text-[10px] uppercase tracking-[0.3em] transition-all duration-500 font-ui
+                  relative text-[11.5px] uppercase tracking-[0.28em] transition-all duration-500
                   ${city === c ? 'text-accent' : 'text-muted/50 hover:text-text'}
                 `}
               >
@@ -138,7 +140,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Spacing adjustment for the Pricing section transition */}
       <div className="py-20 bg-gray-50/30" />
       <Pricing />
 
