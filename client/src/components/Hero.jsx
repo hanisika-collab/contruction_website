@@ -42,7 +42,7 @@ const SLIDES = [
 
 const STATS = [
   { num: '240+', label: 'Projects Delivered' },
-  { num: '12',   label: 'Years of Craft'     },
+  { num: '34',   label: 'Years of Craft'     },
   { num: '98%',  label: 'Client Satisfaction'},
 ];
 

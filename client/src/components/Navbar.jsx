@@ -17,33 +17,25 @@ const Navbar = () => {
 
   useEffect(() => { setMenuOpen(false); }, [location]);
 
-  // FUNCTIONALITY: Logic for the Get a Quote button
   const handleQuoteClick = (e) => {
     e.preventDefault();
     setMenuOpen(false);
-
-    // If on homepage, smooth scroll to contact section
     if (location.pathname === '/') {
       const contactSection = document.getElementById('contact');
-      if (contactSection) {
-        contactSection.scrollIntoView({ behavior: 'smooth' });
-      }
+      if (contactSection) contactSection.scrollIntoView({ behavior: 'smooth' });
     } else {
-      // If on another page, navigate home then scroll
       navigate('/');
       setTimeout(() => {
         const contactSection = document.getElementById('contact');
-        if (contactSection) {
-          contactSection.scrollIntoView({ behavior: 'smooth' });
-        }
+        if (contactSection) contactSection.scrollIntoView({ behavior: 'smooth' });
       }, 100);
     }
   };
 
   const links = [
     { label: 'Portfolio', to: '/portfolio' },
-    { label: 'Packages', to: '/packages' },
-    { label: 'Contact', to: '/contact' },
+    { label: 'Packages',  to: '/packages'  },
+    { label: 'Contact',   to: '/contact'   },
   ];
 
   return (
@@ -93,43 +85,15 @@ const Navbar = () => {
           </Link>
 
           {/* DESKTOP NAV */}
-          <nav style={{ display: 'flex', alignItems: 'center', gap: 48 }} className="nav-desktop">
+          <nav style={{ display: 'flex', alignItems: 'center', gap: 44 }} className="nav-desktop">
             {links.map(l => (
               <NavLink key={l.to} to={l.to} scrolled={scrolled} active={location.pathname === l.to}>
                 {l.label}
               </NavLink>
             ))}
 
-            <Link to="/admin/login" style={{
-              fontFamily: "'Poppins', sans-serif", fontSize: 10, fontWeight: 400,
-              letterSpacing: '0.25em', textTransform: 'uppercase',
-              color: scrolled ? '#888' : 'rgba(255, 255, 255, 0.5)',
-              textDecoration: 'none',
-              border: `1px solid ${scrolled ? 'rgba(0,0,0,0.1)' : 'rgba(255, 255, 255, 0.2)'}`,
-              padding: '8px 20px', transition: 'all 0.3s ease',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.color = '#00adee'; e.currentTarget.style.borderColor = '#00adee'; }}
-            onMouseLeave={e => {
-              e.currentTarget.style.color = scrolled ? '#888' : 'rgba(255, 255, 255, 0.5)';
-              e.currentTarget.style.borderColor = scrolled ? 'rgba(0,0,0,0.1)' : 'rgba(255, 255, 255, 0.2)';
-            }}>
-              Admin
-            </Link>
-
-            {/* UPDATED: GET A QUOTE BUTTON */}
-            <button 
-              onClick={handleQuoteClick} 
-              style={{
-                fontFamily: "'Poppins', sans-serif", fontSize: 10, fontWeight: 500,
-                letterSpacing: '0.2em', textTransform: 'uppercase',
-                background: '#00adee', color: '#fff', padding: '14px 30px',
-                border: 'none', cursor: 'pointer', transition: 'all 0.4s ease', display: 'inline-block',
-                boxShadow: scrolled ? '0 10px 20px -5px rgba(0, 173, 238, 0.3)' : 'none',
-              }}
-              onMouseEnter={e => { e.currentTarget.style.background = '#0090c8'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-              onMouseLeave={e => { e.currentTarget.style.background = '#00adee'; e.currentTarget.style.transform = 'translateY(0)'; }}>
-              Get a Quote
-            </button>
+            <AdminLink scrolled={scrolled} />
+            <QuoteButton scrolled={scrolled} onClick={handleQuoteClick} />
           </nav>
 
           {/* HAMBURGER */}
@@ -140,7 +104,7 @@ const Navbar = () => {
               <span key={i} style={{
                 display: 'block', width: 24, height: 1.5,
                 background: scrolled ? '#1a1a1a' : '#fff',
-                margin: '6px 0', transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)', 
+                margin: '6px 0', transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
                 transformOrigin: 'center',
                 transform: menuOpen
                   ? i === 0 ? 'rotate(45deg) translate(5px, 5px)'
@@ -164,22 +128,32 @@ const Navbar = () => {
             {links.map(l => (
               <Link key={l.to} to={l.to} onClick={() => setMenuOpen(false)}
                 style={{
-                  display: 'block', fontFamily: "'Poppins', sans-serif", fontSize: 13,
-                  fontWeight: 400, letterSpacing: '0.2em', textTransform: 'uppercase',
+                  display: 'block',
+                  fontFamily: 'Poppins',
+                  fontSize: 15,
+                  fontWeight: 500,
+                  letterSpacing: '0.18em',
+                  textTransform: 'uppercase',
                   color: location.pathname === l.to ? '#00adee' : '#1a1a1a',
-                  padding: '20px 0', borderBottom: '1px solid rgba(0,0,0,0.05)', textDecoration: 'none',
+                  padding: '20px 0',
+                  borderBottom: '1px solid rgba(0,0,0,0.05)',
+                  textDecoration: 'none',
                 }}>
                 {l.label}
               </Link>
             ))}
-            {/* UPDATED MOBILE BUTTON */}
-            <button 
+            <button
               onClick={handleQuoteClick}
               style={{
                 display: 'block', width: '100%', textAlign: 'center', marginTop: '30px',
                 background: '#00adee', color: '#fff', border: 'none',
-                fontFamily: "'Poppins', sans-serif", fontSize: 11, fontWeight: 500,
-                letterSpacing: '0.2em', textTransform: 'uppercase', padding: '18px', cursor: 'pointer'
+                fontFamily: 'Poppins',
+                fontSize: 12,
+                fontWeight: 500,
+                letterSpacing: '0.18em',
+                textTransform: 'uppercase',
+                padding: '18px',
+                cursor: 'pointer',
               }}>
               Get a Quote
             </button>
@@ -200,26 +174,94 @@ const Navbar = () => {
   );
 };
 
+/* ─── NAV LINK ────────────────────────────────────────────── */
 const NavLink = ({ to, children, scrolled, active }) => {
   const [hov, setHov] = useState(false);
   return (
-    <Link to={to}
+    <Link
+      to={to}
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
       style={{
-        fontFamily: "'Poppins', sans-serif", fontSize: 10, fontWeight: 400,
-        letterSpacing: '0.25em', textTransform: 'uppercase', textDecoration: 'none',
-        color: hov || active ? '#00adee' : scrolled ? '#666' : 'rgba(255, 255, 255, 0.7)',
-        transition: 'color 0.3s ease', position: 'relative',
+        fontFamily: "'Poppins', sans-serif",
+        fontSize: 15,
+        fontWeight: 500,
+        letterSpacing: '0.18em',
+        textTransform: 'uppercase',
+        textDecoration: 'none',
+        color: hov || active ? '#00adee' : scrolled ? '#555' : 'rgba(255, 255, 255, 0.82)',
+        transition: 'color 0.35s ease',
+        position: 'relative',
+        paddingBottom: 2,
       }}>
       {children}
       <span style={{
-        position: 'absolute', bottom: -6, left: '50%',
-        width: hov || active ? '100%' : '0%', height: 1,
-        background: '#00adee', transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-        transform: 'translateX(-50%)'
+        position: 'absolute',
+        bottom: -4,
+        left: '50%',
+        width: hov || active ? '100%' : '0%',
+        height: 1,
+        background: '#00adee',
+        transition: 'width 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+        transform: 'translateX(-50%)',
+        display: 'block',
       }} />
     </Link>
+  );
+};
+
+/* ─── ADMIN LINK ──────────────────────────────────────────── */
+const AdminLink = ({ scrolled }) => {
+  const [hov, setHov] = useState(false);
+  return (
+    <Link
+      to="/admin/login"
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        fontFamily: "'Poppins', sans-serif",
+        fontSize: 15,
+        fontWeight: 400,
+        letterSpacing: '0.2em',
+        textTransform: 'uppercase',
+        textDecoration: 'none',
+        color: hov ? '#00adee' : scrolled ? '#888' : 'rgba(255, 255, 255, 0.5)',
+        border: `1px solid ${hov ? '#00adee' : scrolled ? 'rgba(0,0,0,0.12)' : 'rgba(255,255,255,0.22)'}`,
+        padding: '9px 22px',
+        transition: 'color 0.35s ease, border-color 0.35s ease',
+      }}>
+      Admin
+    </Link>
+  );
+};
+
+/* ─── QUOTE BUTTON ────────────────────────────────────────── */
+const QuoteButton = ({ scrolled, onClick }) => {
+  const [hov, setHov] = useState(false);
+  return (
+    <button
+      onClick={onClick}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        fontFamily: "'Poppins', sans-serif",
+        fontSize: 15,
+        fontWeight: 500,
+        letterSpacing: '0.2em',
+        textTransform: 'uppercase',
+        background: hov ? '#0090c8' : '#00adee',
+        color: '#fff',
+        padding: '13px 30px',
+        border: 'none',
+        cursor: 'pointer',
+        transform: hov ? 'translateY(-2px)' : 'translateY(0)',
+        transition: 'background 0.35s ease, transform 0.35s cubic-bezier(0.16,1,0.3,1), box-shadow 0.35s ease',
+        boxShadow: hov
+          ? '0 12px 28px -6px rgba(0, 173, 238, 0.45)'
+          : scrolled ? '0 8px 20px -6px rgba(0, 173, 238, 0.3)' : 'none',
+      }}>
+      Get a Quote
+    </button>
   );
 };
 

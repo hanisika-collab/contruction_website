@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import Hero from '../components/Hero';
 import BeforeAfterSlider from '../components/BeforeAfterSlider';
 import Pricing from '../components/Pricing';
-
+import Review from '../components/Review';
 const CITIES = ['All', 'Bangalore', 'Krishnagiri'];
 
 const Home = () => {
@@ -141,6 +141,8 @@ const Home = () => {
       {/* Spacing adjustment for the Pricing section transition */}
       <div className="py-20 bg-gray-50/30" />
       <Pricing />
+
+      <Review/>
     </div>
   );
 };
